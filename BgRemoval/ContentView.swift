@@ -3,10 +3,45 @@ import UIKit
 
 struct ContentView: View {
     
-    @State private var isShowPhotoLibrary = false
+    @State private var openSheet = false
+    @State private var isShowCamera = false
     @State private var image: UIImage?
+    @State var onTap = false
+    @State var useBackCamera: Bool = true
     
     fileprivate let bgRemoval = BackgroundRemoval()
+    
+    fileprivate func customCameraView() -> some View {
+        ZStack {
+            Color.black
+                .edgesIgnoringSafeArea(.all)
+            VStack {
+                CameraView(takePicture: self.$onTap,
+                           useBackCamera: self.$useBackCamera)
+                { (result) in
+                    self.image = result
+                    self.openSheet = false
+                }
+                .onTapGesture(count: 2) {
+                    self.useBackCamera.toggle()
+                }
+
+                Button(action: {
+                    if self.onTap == false {
+                        self.onTap = true
+                    }
+                }) {
+                    Circle()
+                        .foregroundColor(.white)
+                        .frame(width: 65, height: 65)
+                }
+                
+                .padding(.all, 24)
+            }
+        }
+    }
+    
+
     
     var body: some View {
         VStack {
@@ -38,13 +73,8 @@ struct ContentView: View {
                             self.image = self.bgRemoval.predictUIImage(safeimage)
                         }
                     }) {
-                        HStack {
-                            Image(systemName: "star")
-                                .font(.system(size: 20))
-                            
-                            Text("Remove Background")
-                                .font(.headline)
-                        }
+                        Text("Remove Background")
+                        .font(.headline)
                         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 50)
                         .background(Color.green)
                         .foregroundColor(.white)
@@ -56,15 +86,26 @@ struct ContentView: View {
                 
             } else {
                 Button(action: {
-                    self.isShowPhotoLibrary = true
+                    self.isShowCamera = true
+                    self.openSheet = true
                 }) {
-                    HStack {
-                        Image(systemName: "photo")
-                            .font(.system(size: 20))
-                        
-                        Text("Photo library")
-                            .font(.headline)
-                    }
+                    Text("Take photo")
+                    .font(.headline)
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 50)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(20)
+                    .padding(.all)
+                }
+                
+                
+                
+                Button(action: {
+                    self.isShowCamera = false
+                    self.openSheet = true
+                }) {
+                    Text("Choose from library")
+                    .font(.headline)
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 50)
                     .background(Color.blue)
                     .foregroundColor(.white)
@@ -74,9 +115,14 @@ struct ContentView: View {
             }
             
         }
-        .sheet(isPresented: $isShowPhotoLibrary) {
-            ImagePicker(selectedImage: self.$image)
+        .sheet(isPresented: self.$openSheet) {
+            if self.isShowCamera == true {
+                self.customCameraView()
+            } else {
+                ImagePicker(selectedImage: self.$image)
+            }
         }
+
     }
 }
 

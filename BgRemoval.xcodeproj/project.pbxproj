@@ -30,8 +30,8 @@
 		36CF8EB624E03987007B38F6 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36CF8EB524E03987007B38F6 /* Preview Assets.xcassets */; };
 		36CF8EB924E03987007B38F6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 36CF8EB724E03987007B38F6 /* LaunchScreen.storyboard */; };
 		36CF8EC424E03A4D007B38F6 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CF8EC324E03A4D007B38F6 /* ImagePicker.swift */; };
-		36E5B83E24E6059400E1AD98 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E5B83D24E6059400E1AD98 /* CameraView.swift */; };
 		36F0FB6124F8633D003F6A26 /* SOD_Fashion.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 36F0FB6024F8633D003F6A26 /* SOD_Fashion.mlmodel */; };
+		36F74B2D24F93206002AFEB5 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F74B2C24F93206002AFEB5 /* CameraView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,8 +60,8 @@
 		36CF8EB824E03987007B38F6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		36CF8EBA24E03988007B38F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		36CF8EC324E03A4D007B38F6 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ImagePicker.swift; path = ../ImagePicker.swift; sourceTree = "<group>"; };
-		36E5B83D24E6059400E1AD98 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		36F0FB6024F8633D003F6A26 /* SOD_Fashion.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SOD_Fashion.mlmodel; sourceTree = "<group>"; };
+		36F74B2C24F93206002AFEB5 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,7 +159,7 @@
 			children = (
 				3676819C24E0500300CECFF9 /* CoreML */,
 				36CF8EC324E03A4D007B38F6 /* ImagePicker.swift */,
-				36E5B83D24E6059400E1AD98 /* CameraView.swift */,
+				36F74B2C24F93206002AFEB5 /* CameraView.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -237,9 +237,9 @@
 			files = (
 				367681BA24E0501800CECFF9 /* CVPixelBuffer+Helpers.swift in Sources */,
 				367681B924E0501800CECFF9 /* CGImagePropertyOrientation.swift in Sources */,
-				36E5B83E24E6059400E1AD98 /* CameraView.swift in Sources */,
 				367681AF24E0501800CECFF9 /* MLModel+Images.swift in Sources */,
 				36F0FB6124F8633D003F6A26 /* SOD_Fashion.mlmodel in Sources */,
+				36F74B2D24F93206002AFEB5 /* CameraView.swift in Sources */,
 				367681B224E0501800CECFF9 /* CGImage+RawBytes.swift in Sources */,
 				367681B824E0501800CECFF9 /* CGImage+CVPixelBuffer.swift in Sources */,
 				367681B724E0501800CECFF9 /* Predictions.swift in Sources */,

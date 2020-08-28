@@ -41,13 +41,13 @@ extension MLModel {
     Converts a UIImage into an MLFeatureValue, using the image constraint of
     the specified model input.
    */
-  public func featureValue(fromUIImage image: UIImage,
+  public func featureValue(fromUIImage picture: UIImage,
                            forInput inputName: String,
                            orientation: CGImagePropertyOrientation = .up,
                            options: [MLFeatureValue.ImageOption: Any]? = nil)
                            -> MLFeatureValue? {
 
-    guard let cgImage = image.cgImage else {
+    guard let cgImage = picture.cgImage else {
       print("Error: could not convert UIImage to CGImage")
       return nil
     }

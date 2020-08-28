@@ -35,10 +35,10 @@ extension UIImage {
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = scale
         let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
-        let image = renderer.image { _ in
+        let picture = renderer.image { _ in
             draw(in: CGRect(origin: .zero, size: newSize))
         }
-        return image
+        return picture
     }
     /**
      Rotates the image.
@@ -53,14 +53,14 @@ extension UIImage {
         newSize.width = floor(newSize.width)
         newSize.height = floor(newSize.height)
         let renderer = UIGraphicsImageRenderer(size:self.size)
-        let image = renderer.image { rendererContext in
+        let picture = renderer.image { rendererContext in
             let context = rendererContext.cgContext
             //rotate from center
             context.translateBy(x: newSize.width/2, y: newSize.height/2)
             context.rotate(by: radians)
             draw(in:  CGRect(origin: CGPoint(x: -self.size.width/2, y: -self.size.height/2), size: size))
         }
-        return image
+        return picture
     }
     
     @nonobjc func rotate(radians: Float) -> UIImage? {

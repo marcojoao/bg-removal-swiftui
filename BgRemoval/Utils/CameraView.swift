@@ -1,9 +1,9 @@
 //
 //  CameraViewController.swift
-//  SwiftUI-CameraApp
+//  BgRemoval
 //
-//  Created by Gaspard Rosay on 28.01.20.
-//  Copyright © 2020 Gaspard Rosay. All rights reserved.
+//  Created by Marco@GaspardBruno on 28/08/2020.
+//  Copyright © 2020 Marco João. All rights reserved.
 //
 
 import SwiftUI
@@ -11,160 +11,192 @@ import UIKit
 import AVFoundation
 
 
-struct CameraView: View {
+struct CameraView: UIViewControllerRepresentable {
     
-    @State var photoAlginment: Alignment = .bottomLeading
-    @State private var image: UIImage?
-    @State private var didTapCapture: Bool = false
+    @Binding var takePicture: Bool
+    @Binding var useBackCamera: Bool
+    var onResult: ((UIImage) -> Void)
     
-    var body: some View {
-        ZStack(alignment: self.photoAlginment) {
-            Button(action: {
-                self.didTapCapture.toggle()
-            }) {
-                CameraViewController(image: self.$image, didTapCapture: $didTapCapture)
-            }
-            
-            if image != nil {
-                Image(uiImage: self.image!)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 180)
-                    .shadow(radius: 30)
-                    .border(Color.white, width: 4)
-                    .padding()
-            }
-        }
-        
+    func makeUIViewController(context: Context) -> CameraController {
+        let controller = CameraController()
+        controller.photoCaptureDelegate = context.coordinator
+        return controller
     }
     
+    func updateUIViewController(_ cameraViewController: CameraController, context: Context) {
+        
+        if self.takePicture {
+            cameraViewController.didTapTakePicture()
+            
+        }
+        
+        let updatePostion = cameraViewController.useBackCamera != self.useBackCamera
+        if updatePostion == true {
+            cameraViewController.didToggleChangeCamera()
+        }
+    }
     
-    struct CameraViewController: UIViewControllerRepresentable {
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UINavigationControllerDelegate, AVCapturePhotoCaptureDelegate {
+        let parent: CameraView
         
-        @Environment(\.presentationMode) var presentationMode
-        @Binding var image: UIImage?
-        @Binding var didTapCapture: Bool
-        
-        func makeUIViewController(context: Context) -> CameraController {
-            let controller = CameraController()
-            controller.delegate = context.coordinator
-            return controller
+        init(_ parent: CameraView) {
+            self.parent = parent
         }
         
-        func updateUIViewController(_ cameraViewController: CameraController, context: Context) {
+        func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
             
-            if(self.didTapCapture) {
-                cameraViewController.didTapRecord()
-            }
-        }
-        func makeCoordinator() -> Coordinator {
-            Coordinator(self)
-        }
-        
-        class Coordinator: NSObject, UINavigationControllerDelegate, AVCapturePhotoCaptureDelegate {
-            let parent: CameraViewController
+            parent.takePicture = false
             
-            init(_ parent: CameraViewController) {
-                self.parent = parent
-            }
-            
-            func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-                
-                parent.didTapCapture = false
-                
-                if let imageData = photo.fileDataRepresentation(), let image = UIImage(data: imageData) {
-                    var rotateDegree: Float = 0
-                    switch UIDevice.current.orientation {
-                    case .portrait:
-                        rotateDegree = 0
-                    case .portraitUpsideDown:
-                        rotateDegree = .pi
-                    case .landscapeLeft:
-                        rotateDegree = .pi * 1.5
-                    case .landscapeRight:
-                        rotateDegree = .pi / 2
-                    default:
-                        rotateDegree = 0
-                    }
-                    
-                    let rotatedImage = image.rotate(radians: rotateDegree)
-                    parent.image = rotatedImage
+            if let imageData = photo.fileDataRepresentation(), let image = UIImage(data: imageData) {
+                var rotateDegree: Float = 0
+                switch UIDevice.current.orientation {
+                case .portrait:
+                    rotateDegree = 0
+                case .portraitUpsideDown:
+                    rotateDegree = .pi
+                case .landscapeLeft:
+                    rotateDegree = .pi * 1.5
+                case .landscapeRight:
+                    rotateDegree = .pi / 2
+                default:
+                    rotateDegree = 0
                 }
-                parent.presentationMode.wrappedValue.dismiss()
+                
+                if let safeImage = image.rotate(radians: rotateDegree) {
+                    parent.onResult(safeImage)
+                }
             }
+            
         }
     }
     
     class CameraController: UIViewController {
-        
+
         var image: UIImage?
         
         var captureSession = AVCaptureSession()
-        var backCamera: AVCaptureDevice?
-        var frontCamera: AVCaptureDevice?
         var currentCamera: AVCaptureDevice?
         var photoOutput: AVCapturePhotoOutput?
         var cameraPreviewLayer: AVCaptureVideoPreviewLayer?
         
-        var delegate: AVCapturePhotoCaptureDelegate?
+        var photoCaptureDelegate: AVCapturePhotoCaptureDelegate?
+        var useBackCamera: Bool = true
+
         
-        func didTapRecord() {
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
             
+            if captureSession.isRunning == false {
+                setup()
+            }
+            
+        }
+        
+        fileprivate func didTapTakePicture() {
             let settings = AVCapturePhotoSettings()
-            photoOutput?.capturePhoto(with: settings, delegate: delegate!)
+            photoOutput?.capturePhoto(with: settings, delegate: photoCaptureDelegate!)
+        }
+
+        fileprivate func didToggleChangeCamera() {
+            self.useBackCamera.toggle()
             
+            let cameraPosition: AVCaptureDevice.Position = self.useBackCamera ? .back : .front
+            guard let backCamera = self.getCamera(position: cameraPosition) else {
+                print("Unable to access back camera!")
+                return
+            }
+            
+            do {
+                self.captureSession.beginConfiguration()
+                let input = try AVCaptureDeviceInput(device: backCamera)
+                
+                for i in captureSession.inputs {
+                    captureSession.removeInput(i)
+                }
+                
+                if captureSession.canAddInput(input) {
+                    
+                    captureSession.addInput(input)
+                    
+                }
+                self.captureSession.commitConfiguration()
+            } catch let error {
+                print("Error Unable to initialize back camera:  \(error.localizedDescription)")
+            }
         }
-        
-        override func viewDidLoad() {
-            super.viewDidLoad()
-            setup()
-        }
-        func setup() {
+
+        fileprivate func setup() {
             setupCaptureSession()
             setupDevice()
-            setupInputOutput()
-            setupPreviewLayer()
-            startRunningCaptureSession()
+            if setupInputOutput() {
+                setupPreviewLayer()
+                startRunningCaptureSession()
+            }
+
         }
-        func setupCaptureSession() {
+        
+        fileprivate func setupCaptureSession() {
             captureSession.sessionPreset = AVCaptureSession.Preset.photo
         }
         
-        func setupDevice() {
-            let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [AVCaptureDevice.DeviceType.builtInWideAngleCamera],
-                                                                          mediaType: AVMediaType.video,
-                                                                          position: AVCaptureDevice.Position.unspecified)
-            for device in deviceDiscoverySession.devices {
-                
-                switch device.position {
-                case AVCaptureDevice.Position.front:
-                    self.frontCamera = device
-                case AVCaptureDevice.Position.back:
-                    self.backCamera = device
-                default:
-                    break
-                }
+        fileprivate func setupDevice() {
+            self.currentCamera =  getCamera(position: .back)
+        }
+        
+        fileprivate func getCamera(position: AVCaptureDevice.Position) -> AVCaptureDevice? {
+            
+            for i in captureSession.inputs {
+                captureSession.removeInput(i)
             }
             
-            self.currentCamera = self.backCamera
+            let devices = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInTrueDepthCamera,
+                                                                         .builtInDualCamera,
+                                                                         .builtInWideAngleCamera],
+                                                           mediaType: .video,
+                                                           position: position)
+            for de in devices.devices {
+                let deviceConverted = de
+                if deviceConverted.position == position {
+                    self.useBackCamera = position == .back
+                    return deviceConverted
+                }
+            }
+            return nil
         }
         
         
-        func setupInputOutput() {
+        fileprivate func setupInputOutput() -> Bool {
             do {
                 
-                let captureDeviceInput = try AVCaptureDeviceInput(device: currentCamera!)
+                guard let safeCurrentCamera = currentCamera else {
+                    print("Unable to access back camera!")
+                    return false
+                }
+                
+                let captureDeviceInput = try AVCaptureDeviceInput(device: safeCurrentCamera)
+                for input in captureSession.inputs {
+                    captureSession.removeInput(input);
+                }
                 captureSession.addInput(captureDeviceInput)
                 photoOutput = AVCapturePhotoOutput()
                 photoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])], completionHandler: nil)
+                for output in captureSession.outputs {
+                    captureSession.removeOutput(output);
+                }
                 captureSession.addOutput(photoOutput!)
                 
             } catch {
                 print(error)
+                return false
             }
-            
+            return true
         }
-        func setupPreviewLayer()
+        
+        fileprivate func setupPreviewLayer()
         {
             self.cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
             self.cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
@@ -173,7 +205,8 @@ struct CameraView: View {
             self.view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
             
         }
-        func startRunningCaptureSession(){
+        
+        fileprivate func startRunningCaptureSession(){
             captureSession.startRunning()
         }
     }
