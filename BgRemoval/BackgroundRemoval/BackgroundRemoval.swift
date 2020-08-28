@@ -10,11 +10,11 @@ import SwiftUI
 
 struct BackgroundRemoval {
 
-    fileprivate var model: efficientnetb2_256_f8_model
-    fileprivate let kImageSize: Int = 256
+    fileprivate var model: SOD_Fashion
+    fileprivate let kImageSize: Int = 320
     
     init(){
-        model = efficientnetb2_256_f8_model()
+        model = SOD_Fashion()
     }
     
     func predictUIImage(_ image: UIImage) -> UIImage? {
@@ -22,7 +22,7 @@ struct BackgroundRemoval {
         
         if let safeImageBuffer = imageBuffer {
             do {
-                let result = try model.prediction(input_2: safeImageBuffer)
+                let result = try model.prediction(input_1: safeImageBuffer)
                 if let resultImage = result.Identity.cgImage(min: 0, max: 1) {
                     let original = image.cgImage!
                     if let result = original.masking(resultImage) {
