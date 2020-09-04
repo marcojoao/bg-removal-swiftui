@@ -394,14 +394,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"BgRemoval/Preview Content\"";
-				DEVELOPMENT_TEAM = 43PUX3JZDC;
+				DEVELOPMENT_TEAM = 9EMZ8KV4WF;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = BgRemoval/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.marcojoao.BgRemoval;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gaspardbruno.BgRemoval;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -414,14 +414,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"BgRemoval/Preview Content\"";
-				DEVELOPMENT_TEAM = 43PUX3JZDC;
+				DEVELOPMENT_TEAM = 9EMZ8KV4WF;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = BgRemoval/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.marcojoao.BgRemoval;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gaspardbruno.BgRemoval;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
