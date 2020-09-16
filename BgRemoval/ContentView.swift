@@ -9,7 +9,7 @@ struct ContentView: View {
     @State var onTap = false
     @State var useBackCamera: Bool = true
     
-    fileprivate let bgRemoval = BackgroundRemoval()
+    fileprivate let bgRemoval = BgRemoval()
     
     fileprivate func customCameraView() -> some View {
         ZStack {
@@ -19,11 +19,12 @@ struct ContentView: View {
                 CameraView(takePicture: self.$onTap,
                            useBackCamera: self.$useBackCamera)
                 { (result) in
-                    self.image = result
                     self.openSheet = false
+                    self.image = result
                 }
                 .onTapGesture(count: 2) {
-                    self.useBackCamera.toggle()
+                    self.useBackCamera = !self.useBackCamera
+                    //self.useBackCamera.toggle()
                 }
 
                 Button(action: {
@@ -35,6 +36,7 @@ struct ContentView: View {
                         .foregroundColor(.white)
                         .frame(width: 65, height: 65)
                 }
+            .disabled(self.onTap)
                 
                 .padding(.all, 24)
             }
@@ -70,7 +72,9 @@ struct ContentView: View {
                     }
                     Button(action: {
                         if let safeimage = self.image {
-                            self.image = self.bgRemoval.predictUIImage(safeimage)
+                            DispatchQueue.global().async {
+                                self.image = self.bgRemoval.prediction(input: safeimage)
+                            }
                         }
                     }) {
                         Text("Remove Background")
@@ -115,13 +119,17 @@ struct ContentView: View {
             }
             
         }
-        .sheet(isPresented: self.$openSheet) {
+        .sheet(isPresented: self.$openSheet,
+               onDismiss: {
+            self.useBackCamera = true
+            self.onTap = false
+        }, content: { 
             if self.isShowCamera == true {
                 self.customCameraView()
             } else {
                 ImagePicker(selectedImage: self.$image)
             }
-        }
+        })
 
     }
 }

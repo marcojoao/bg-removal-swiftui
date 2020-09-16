@@ -90,6 +90,7 @@ extension UIImage {
         
         return newImage
     }
+    
     func fixOrientation() -> UIImage {
         if self.imageOrientation == UIImage.Orientation.up {
             return self

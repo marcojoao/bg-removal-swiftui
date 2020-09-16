@@ -15,7 +15,11 @@ struct CameraView: UIViewControllerRepresentable {
     
     @Binding var takePicture: Bool
     @Binding var useBackCamera: Bool
+
     var onResult: ((UIImage) -> Void)
+    //var onError: (() -> Void)
+    
+    
     
     func makeUIViewController(context: Context) -> CameraController {
         let controller = CameraController()
@@ -27,13 +31,8 @@ struct CameraView: UIViewControllerRepresentable {
         
         if self.takePicture {
             cameraViewController.didTapTakePicture()
-            
         }
-        
-        let updatePostion = cameraViewController.useBackCamera != self.useBackCamera
-        if updatePostion == true {
-            cameraViewController.didToggleChangeCamera()
-        }
+        cameraViewController.didToggleChangeCamera(self.useBackCamera)
     }
     
     func makeCoordinator() -> Coordinator {
@@ -48,9 +47,6 @@ struct CameraView: UIViewControllerRepresentable {
         }
         
         func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-            
-            parent.takePicture = false
-            
             if let imageData = photo.fileDataRepresentation(), let image = UIImage(data: imageData) {
                 var rotateDegree: Float = 0
                 switch UIDevice.current.orientation {
@@ -67,24 +63,20 @@ struct CameraView: UIViewControllerRepresentable {
                 }
                 
                 if let safeImage = image.rotate(radians: rotateDegree) {
-                    parent.onResult(safeImage)
+                    self.parent.onResult(safeImage)
                 }
             }
-            
         }
     }
     
     class CameraController: UIViewController {
-
         var image: UIImage?
         
         var captureSession = AVCaptureSession()
         var currentCamera: AVCaptureDevice?
         var photoOutput: AVCapturePhotoOutput?
         var cameraPreviewLayer: AVCaptureVideoPreviewLayer?
-        
         var photoCaptureDelegate: AVCapturePhotoCaptureDelegate?
-        var useBackCamera: Bool = true
 
         
         override func viewDidAppear(_ animated: Bool) {
@@ -93,39 +85,45 @@ struct CameraView: UIViewControllerRepresentable {
             if captureSession.isRunning == false {
                 setup()
             }
-            
         }
         
         fileprivate func didTapTakePicture() {
+
+            print("didTapTakePicture")
+            
             let settings = AVCapturePhotoSettings()
             photoOutput?.capturePhoto(with: settings, delegate: photoCaptureDelegate!)
         }
 
-        fileprivate func didToggleChangeCamera() {
-            self.useBackCamera.toggle()
+        fileprivate func didToggleChangeCamera(_ useBackCamera: Bool) {
+            let position: AVCaptureDevice.Position = useBackCamera ? .back : .front
+            if self.currentCamera?.position == position {
+                return
+            }
             
-            let cameraPosition: AVCaptureDevice.Position = self.useBackCamera ? .back : .front
-            guard let backCamera = self.getCamera(position: cameraPosition) else {
+            print("didToggleChangeCamera \(position.rawValue)")
+            self.currentCamera = self.getCamera(position: position)
+            
+            guard let selectedCamera = self.currentCamera else {
                 print("Unable to access back camera!")
                 return
             }
             
             do {
                 self.captureSession.beginConfiguration()
-                let input = try AVCaptureDeviceInput(device: backCamera)
+                let input = try AVCaptureDeviceInput(device: selectedCamera)
                 
                 for i in captureSession.inputs {
                     captureSession.removeInput(i)
                 }
                 
                 if captureSession.canAddInput(input) {
-                    
                     captureSession.addInput(input)
-                    
                 }
+                
                 self.captureSession.commitConfiguration()
             } catch let error {
-                print("Error Unable to initialize back camera:  \(error.localizedDescription)")
+                print("Error Unable to initialize camera:  \(error.localizedDescription)")
             }
         }
 
@@ -136,7 +134,6 @@ struct CameraView: UIViewControllerRepresentable {
                 setupPreviewLayer()
                 startRunningCaptureSession()
             }
-
         }
         
         fileprivate func setupCaptureSession() {
@@ -161,7 +158,6 @@ struct CameraView: UIViewControllerRepresentable {
             for de in devices.devices {
                 let deviceConverted = de
                 if deviceConverted.position == position {
-                    self.useBackCamera = position == .back
                     return deviceConverted
                 }
             }
@@ -181,9 +177,11 @@ struct CameraView: UIViewControllerRepresentable {
                 for input in captureSession.inputs {
                     captureSession.removeInput(input);
                 }
+                
                 captureSession.addInput(captureDeviceInput)
                 photoOutput = AVCapturePhotoOutput()
                 photoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])], completionHandler: nil)
+                
                 for output in captureSession.outputs {
                     captureSession.removeOutput(output);
                 }
@@ -201,6 +199,8 @@ struct CameraView: UIViewControllerRepresentable {
             self.cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
             self.cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
             self.cameraPreviewLayer?.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
+//            self.cameraPreviewLayer?.connection?.automaticallyAdjustsVideoMirroring = false
+//            self.cameraPreviewLayer?.connection?.isVideoMirrored = !self.useBackCamera
             self.cameraPreviewLayer?.frame = self.view.frame
             self.view.layer.insertSublayer(cameraPreviewLayer!, at: 0)
             
