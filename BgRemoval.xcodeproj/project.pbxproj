@@ -407,14 +407,14 @@
 				CODE_SIGN_ENTITLEMENTS = BgRemoval/BgRemoval.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"BgRemoval/Preview Content\"";
-				DEVELOPMENT_TEAM = 43PUX3JZDC;
+				DEVELOPMENT_TEAM = 9EMZ8KV4WF;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = BgRemoval/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.marcojoao.BgRemoval;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gaspardbruno.BgRemoval;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
@@ -429,14 +429,14 @@
 				CODE_SIGN_ENTITLEMENTS = BgRemoval/BgRemoval.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"BgRemoval/Preview Content\"";
-				DEVELOPMENT_TEAM = 43PUX3JZDC;
+				DEVELOPMENT_TEAM = 9EMZ8KV4WF;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = BgRemoval/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.marcojoao.BgRemoval;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gaspardbruno.BgRemoval;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
